@@ -32,7 +32,7 @@ export default function RegisterPage() {
         >
           <img
             src="/logo.png"
-            alt="EduSpark Logo"
+            alt="EduSpark"
             className="h-12 w-12 rounded-full shadow"
           />
         </motion.div>

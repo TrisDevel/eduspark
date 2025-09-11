@@ -7,12 +7,28 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirmError, setConfirmError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      setConfirmError("Mật khẩu xác nhận không khớp.");
+      return;
+    }
+    setConfirmError("");
     setLoading(true);
     // ...simulate register...
     setTimeout(() => setLoading(false), 1500);
+  };
+
+  const handleConfirmBlur = () => {
+    if (confirmPassword && password !== confirmPassword) {
+      setConfirmError("Mật khẩu xác nhận không khớp.");
+    } else {
+      setConfirmError("");
+    }
   };
 
   return (
@@ -117,6 +133,8 @@ export default function RegisterPage() {
                   aria-label="Mật khẩu"
                   className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition pr-10"
                   placeholder="Nhập mật khẩu"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
                 <button
                   type="button"
@@ -169,9 +187,13 @@ export default function RegisterPage() {
                   autoComplete="new-password"
                   required
                   aria-label="Xác nhận mật khẩu"
-                  className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition pr-10"
+                  className={`mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition pr-10 ${confirmError ? "border-red-500" : ""}`}
                   placeholder="Nhập lại mật khẩu"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onBlur={handleConfirmBlur}
                 />
+
                 <button
                   type="button"
                   tabIndex={-1}
@@ -208,6 +230,9 @@ export default function RegisterPage() {
                   )}
                 </button>
               </div>
+              {confirmError && (
+                <p className="text-xs text-red-500 mt-1">{confirmError}</p>
+              )}
             </div>
           </div>
 

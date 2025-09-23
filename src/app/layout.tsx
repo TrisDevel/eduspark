@@ -1,6 +1,8 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Be_Vietnam_Pro } from 'next/font/google';
+import { AuthProvider } from "@/contexts/authProvider";
+import MockInit from "@/mocks/init";
 
 export const metadata: Metadata = {
   title: "EduSpark",
@@ -20,7 +22,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={beVietnamPro.className}>{children}</body>
+      <body className={beVietnamPro.className}>
+        <MockInit/>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }

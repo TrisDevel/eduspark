@@ -1,19 +1,46 @@
 // app/login/page.tsx
 "use client";
+
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "@/contexts/authProvider";
+import { HOME_BY_ROLE, DEFAULT_HOME } from "@/constants/roleHome";
 
 export default function LoginPage() {
-  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const params = useSearchParams();
+  const { login, loading: authLoading, user } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false);         // loading cho nút bấm
+  const [email, setEmail] = useState("");                // state email
+  const [password, setPassword] = useState("");          // state password
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     setLoading(true);
-    // ...simulate login...
-    setTimeout(() => setLoading(false), 1500);
+    try {
+      await login(email, password);
+      // ưu tiên quay lại đường dẫn cũ nếu có ?from
+      const from = params.get("from");
+      if (from) {
+        router.replace(from);
+      } else {
+        // không có ?from → chuyển theo role
+        const role = (user?.role as keyof typeof HOME_BY_ROLE) || ("USER" as keyof typeof HOME_BY_ROLE);
+        const home = HOME_BY_ROLE[role] ?? DEFAULT_HOME;
+        router.replace(home);
+      }
+    } catch (err: any) {
+      setError(err?.message || "Đăng nhập thất bại. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-
+  const disabled = loading || authLoading;
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-white p-4">
@@ -50,7 +77,11 @@ export default function LoginPage() {
           <p className="mt-2 text-base text-gray-500">
             Chào mừng quay trở lại! Hãy đăng nhập để tiếp tục.
           </p>
-          
+          {error && (
+            <p className="mt-3 text-sm text-red-600">
+              {error}
+            </p>
+          )}
         </motion.div>
 
         {/* Form */}
@@ -80,6 +111,9 @@ export default function LoginPage() {
                 className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm shadow-sm placeholder-gray-400
                 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition"
                 placeholder="Nhập Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={disabled}
               />
             </div>
 
@@ -97,6 +131,7 @@ export default function LoginPage() {
                   title="Quên mật khẩu?"
                   aria-label="Quên mật khẩu?"
                   tabIndex={0}
+                  // onClick={() => router.push("/forgot-password")}
                 >
                   Quên mật khẩu?
                 </button>
@@ -112,6 +147,9 @@ export default function LoginPage() {
                 className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm shadow-sm placeholder-gray-400
                 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition"
                 placeholder="Nhập mật khẩu"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={disabled}
               />
             </div>
 
@@ -121,6 +159,7 @@ export default function LoginPage() {
                 name="remember-me"
                 type="checkbox"
                 className="h-4 w-4 text-orange-500 focus:ring-orange-400 border-gray-300 rounded"
+                disabled={disabled}
               />
               <label
                 htmlFor="remember-me"
@@ -133,15 +172,15 @@ export default function LoginPage() {
 
           <div>
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: disabled ? 1 : 1.02 }}
+              whileTap={{ scale: disabled ? 1 : 0.98 }}
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
               type="submit"
-              disabled={loading}
+              disabled={disabled}
               className={`w-full flex justify-center items-center gap-2 py-2 px-4 border border-transparent rounded-lg shadow-sm text-base font-semibold text-white bg-gradient-to-r from-orange-500 to-orange-400 hover:from-orange-600 hover:to-orange-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400 transition
-                ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
+                ${disabled ? "opacity-60 cursor-not-allowed" : ""}`}
             >
-              {loading ? (
+              {(loading || authLoading) ? (
                 <svg
                   className="animate-spin h-5 w-5 mr-2 text-white"
                   viewBox="0 0 24 24"
@@ -183,15 +222,19 @@ export default function LoginPage() {
             </div>
           </div>
 
-           {/* Google Login */}
-           <div className="mt-6">
+          {/* Google Login (mock) */}
+          <div className="mt-6">
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: disabled ? 1 : 1.02 }}
+              whileTap={{ scale: disabled ? 1 : 0.98 }}
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
               type="button"
               aria-label="Đăng ký với Google"
               className="w-full flex items-center justify-center gap-3 px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 transition"
+              disabled={disabled}
+              onClick={() => {
+                // (tuỳ chọn) bạn có thể gắn login OAuth ở đây
+              }}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

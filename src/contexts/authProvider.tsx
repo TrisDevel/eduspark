@@ -3,6 +3,7 @@
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { Role } from "@/constants/role";
+import{ ROUTES }from "@/config/routes";
 
 export type User = { id: string; email: string; role?: Role; name?: string } | null;
 
@@ -35,7 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     setLoading(true);
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/${ROUTES.auth.login}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),

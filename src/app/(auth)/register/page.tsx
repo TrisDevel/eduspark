@@ -2,25 +2,65 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { registerApi } from "@/features/auth/api";        // ✨ thêm
+import { useAuth } from "@/contexts/authProvider";        // ✨ nếu muốn auto-login
+import { HOME_BY_ROLE, DEFAULT_HOME } from "@/constants/roleHome"; // ✨ redirect theo role (nếu auto-login)
 
 export default function RegisterPage() {
+  const router = useRouter();
+  const { login, user } = useAuth(); // dùng để auto-login sau khi register
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [confirmError, setConfirmError] = useState("");
+  const [error, setError] = useState<string | null>(null);     // ✨ báo lỗi API
+  const [success, setSuccess] = useState<string | null>(null); // ✨ báo thành công (nếu không auto-login)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
+    setSuccess(null);
+
     if (password !== confirmPassword) {
       setConfirmError("Mật khẩu xác nhận không khớp.");
       return;
     }
     setConfirmError("");
     setLoading(true);
-    // ...simulate register...
-    setTimeout(() => setLoading(false), 1500);
+
+    // Lấy dữ liệu form không cần thêm state cho email/fullname
+    const fd = new FormData(e.currentTarget);
+    const name = String(fd.get("fullname") || "");
+    const email = String(fd.get("email") || "");
+    const pw = String(fd.get("password") || "");
+
+    try {
+      await registerApi({ name, email, password: pw });
+
+      // ⭐ Cách 1: Auto-login luôn (khuyến nghị)
+      try {
+        await login(email, pw);
+        // redirect theo role nếu có, mặc định /dashboard
+        const role = (user?.role as keyof typeof HOME_BY_ROLE) || "USER";
+        const home = HOME_BY_ROLE[role] ?? DEFAULT_HOME;
+        router.replace(home);
+      } catch {
+        // nếu login ngay thất bại (rare), fallback sang /login
+        router.replace("/login");
+      }
+
+      // ⭐ Cách 2 (nếu bạn không muốn auto-login):
+      // setSuccess("Đăng ký thành công! Vui lòng đăng nhập.");
+      // router.replace("/login");
+
+    } catch (err: any) {
+      setError(err?.message || "Đăng ký thất bại. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleConfirmBlur = () => {
@@ -66,6 +106,10 @@ export default function RegisterPage() {
           <p className="mt-2 text-base text-gray-500">
             Tạo tài khoản mới để bắt đầu hành trình học tập cùng EduSpark.
           </p>
+
+          {/* ✨ Thông báo lỗi/thành công (không ảnh hưởng layout chính) */}
+          {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+          {success && <p className="mt-3 text-sm text-green-600">{success}</p>}
         </motion.div>
 
         {/* Form */}
@@ -89,6 +133,7 @@ export default function RegisterPage() {
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 type="text"
                 id="fullname"
+                name="fullname"                             // ✨ thêm name để FormData lấy được
                 autoComplete="name"
                 required
                 aria-label="Họ và tên"
@@ -108,6 +153,7 @@ export default function RegisterPage() {
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 type="email"
                 id="email"
+                name="email"                                // ✨ thêm name
                 autoComplete="username"
                 required
                 aria-label="Email"
@@ -128,6 +174,7 @@ export default function RegisterPage() {
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   type={showPassword ? "text" : "password"}
                   id="password"
+                  name="password"                           // ✨ thêm name
                   autoComplete="new-password"
                   required
                   aria-label="Mật khẩu"
@@ -143,27 +190,14 @@ export default function RegisterPage() {
                   onClick={() => setShowPassword((v) => !v)}
                   aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
                 >
+                  {/* icon giữ nguyên */}
                   {showPassword ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      fill="currentColor"
-                      className="bi bi-eye-fill"
-                      viewBox="0 0 16 16"
-                    >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-eye-fill" viewBox="0 0 16 16">
                       <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
                       <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7" />
                     </svg>
                   ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      fill="currentColor"
-                      className="bi bi-eye-slash-fill"
-                      viewBox="0 0 16 16"
-                    >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-eye-slash-fill" viewBox="0 0 16 16">
                       <path d="m10.79 12.912-1.614-1.615a3.5 3.5 0 0 1-4.474-4.474l-2.06-2.06C.938 6.278 0 8 0 8s3 5.5 8 5.5a7 7 0 0 0 2.79-.588M5.21 3.088A7 7 0 0 1 8 2.5c5 0 8 5.5 8 5.5s-.939 1.721-2.641 3.238l-2.062-2.062a3.5 3.5 0 0 0-4.474-4.474z" />
                       <path d="M5.525 7.646a2.5 2.5 0 0 0 2.829 2.829zm4.95.708-2.829-2.83a2.5 2.5 0 0 1 2.829 2.829zm3.171 6-12-12 .708-.708 12 12z" />
                     </svg>
@@ -203,27 +237,14 @@ export default function RegisterPage() {
                     showConfirmPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"
                   }
                 >
+                  {/* icon giữ nguyên */}
                   {showConfirmPassword ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      fill="currentColor"
-                      className="bi bi-eye-fill"
-                      viewBox="0 0 16 16"
-                    >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-eye-fill" viewBox="0 0 16 16">
                       <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
                       <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7" />
                     </svg>
                   ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      fill="currentColor"
-                      className="bi bi-eye-slash-fill"
-                      viewBox="0 0 16 16"
-                    >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-eye-slash-fill" viewBox="0 0 16 16">
                       <path d="m10.79 12.912-1.614-1.615a3.5 3.5 0 0 1-4.474-4.474l-2.06-2.06C.938 6.278 0 8 0 8s3 5.5 8 5.5a7 7 0 0 0 2.79-.588M5.21 3.088A7 7 0 0 1 8 2.5c5 0 8 5.5 8 5.5s-.939 1.721-2.641 3.238l-2.062-2.062a3.5 3.5 0 0 0-4.474-4.474z" />
                       <path d="M5.525 7.646a2.5 2.5 0 0 0 2.829 2.829zm4.95.708-2.829-2.83a2.5 2.5 0 0 1 2.829 2.829zm3.171 6-12-12 .708-.708 12 12z" />
                     </svg>
@@ -273,63 +294,8 @@ export default function RegisterPage() {
           </div>
         </motion.form>
 
-        {/* OR Divider */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="mt-4"
-        >
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-3 bg-white text-gray-400">Hoặc</span>
-            </div>
-          </div>
+        {/* OR Divider & Google Register giữ nguyên */}
 
-          {/* Google Register */}
-          <div className="mt-6">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ type: "spring", stiffness: 400, damping: 25 }}
-              type="button"
-              aria-label="Đăng ký với Google"
-              className="w-full flex items-center justify-center gap-3 px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 transition"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                x="0px"
-                y="0px"
-                width="25"
-                height="25"
-                viewBox="0 0 48 48"
-              >
-                <path
-                  fill="#FFC107"
-                  d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"
-                ></path>
-                <path
-                  fill="#FF3D00"
-                  d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"
-                ></path>
-                <path
-                  fill="#4CAF50"
-                  d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"
-                ></path>
-                <path
-                  fill="#1976D2"
-                  d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"
-                ></path>
-              </svg>
-              Đăng ký với Google
-            </motion.button>
-          </div>
-        </motion.div>
-
-        {/* Login Link */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

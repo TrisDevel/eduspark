@@ -5,7 +5,7 @@ export default function MockInit() {
   useEffect(() => {
     if (process.env.NEXT_PUBLIC_USE_MOCK === "1") {
       import("./browser").then(({ worker }) => {
-        worker.start({ onUnhandledRequest: "bypass" });
+        worker.start({ onUnhandledRequest: "warn" }); // "bypass" | "warn" | "error"
       });
     }
   }, []);

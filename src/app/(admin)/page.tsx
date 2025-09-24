@@ -5,8 +5,8 @@ import { ROLES } from "@/constants/roles";
 
 export default function AdminPage() {
   return (
-    <RoleGuard allow={[ROLES.ADMIN]}>
+    // <RoleGuard allow={[ROLES.ADMIN]}>
       <div>Admin</div>
-    </RoleGuard>
+    // {/* </RoleGuard> */}
   );
 }

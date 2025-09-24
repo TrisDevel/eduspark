@@ -1,4 +1,5 @@
 import "./globals.css";
+import { Toaster } from "sonner";
 import type { Metadata } from "next";
 import { Be_Vietnam_Pro } from 'next/font/google';
 import { AuthProvider } from "@/contexts/authProvider";
@@ -25,6 +26,7 @@ export default function RootLayout({
       <body className={beVietnamPro.className}>
         <MockInit/>
         <AuthProvider>{children}</AuthProvider>
+         <Toaster position="top-right" richColors closeButton /> {/* Sonner Toast */}
       </body>
     </html>
   );

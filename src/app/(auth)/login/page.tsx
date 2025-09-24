@@ -1,21 +1,30 @@
 // app/login/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/authProvider";
 import { HOME_BY_ROLE, DEFAULT_HOME } from "@/constants/roleHome";
+import { toastWarning } from "@/lib/toast";
 
 export default function LoginPage() {
   const router = useRouter();
   const params = useSearchParams();
+  const message = params.get("message");
+
   const { login, loading: authLoading, user } = useAuth();
 
   const [loading, setLoading] = useState(false);         // loading cho nút bấm
   const [email, setEmail] = useState("");                // state email
   const [password, setPassword] = useState("");          // state password
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (message) {
+      toastWarning(message); // 👈 hiển thị toast cảnh báo
+    }
+  }, [message]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

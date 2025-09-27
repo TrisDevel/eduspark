@@ -17,7 +17,6 @@ export async function api<T = unknown>(path: string, init: RequestInit = {}): Pr
   const res = await fetch(url, { ...init, headers });
   console.log(res.status);
   if (!res.ok) {
-    // thử đọc message từ body nếu có
     let message = `API error: ${res.status}`;
     try {
       const text = await res.clone().text();

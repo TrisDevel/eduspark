@@ -26,7 +26,7 @@ export default function RootLayout({
       <body className={beVietnamPro.className}>
         <MockInit/>
         <AuthProvider>{children}</AuthProvider>
-         <Toaster position="top-right" richColors closeButton /> {/* Sonner Toast */}
+        <Toaster position="top-right" richColors closeButton /> {/* Sonner Toast */}
       </body>
     </html>
   );

@@ -1,9 +1,11 @@
 import "./globals.css";
 import { Toaster } from "sonner";
 import type { Metadata } from "next";
-import { Be_Vietnam_Pro } from 'next/font/google';
+import { Be_Vietnam_Pro } from "next/font/google";
 import { AuthProvider } from "@/contexts/authProvider";
 import MockInit from "@/mocks/init";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
   title: "EduSpark",
@@ -11,9 +13,9 @@ export const metadata: Metadata = {
 };
 
 const beVietnamPro = Be_Vietnam_Pro({
-  subsets: ['vietnamese'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-be-vietnam-pro',
+  subsets: ["vietnamese"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-be-vietnam-pro",
 });
 
 export default function RootLayout({
@@ -24,9 +26,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={beVietnamPro.className}>
-        <MockInit/>
-        <AuthProvider>{children}</AuthProvider>
-         <Toaster position="top-right" richColors closeButton /> {/* Sonner Toast */}
+        <MockInit />
+        <AuthProvider>
+          <Navbar />
+          {children}
+          <Footer />
+        </AuthProvider>
+        <Toaster position="top-right" richColors closeButton />{" "}
+        {/* Sonner Toast */}
       </body>
     </html>
   );

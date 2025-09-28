@@ -11,3 +11,8 @@ export async function getCourses() {
   return data;
 // return mockCourses;
 } 
+
+export async function getCourseById(id: string | number) {
+  const data = await api<Course>(`/courses/${id}`);
+  return data;
+}

@@ -10,7 +10,7 @@ export default function CourseCard({ course }: CourseCardProps) {
   return (
     <motion.div
       whileHover={{ y: -5 }}
-      transition={{ duration: 0.2 }}
+      transition={{ duration: 1.5 }}
       className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full flex flex-col"
     >
       {/* Image Area */}

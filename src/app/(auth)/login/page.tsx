@@ -15,9 +15,9 @@ export default function LoginPage() {
 
   const { login, loading: authLoading, user } = useAuth();
 
-  const [loading, setLoading] = useState(false);         // loading cho nút bấm
-  const [email, setEmail] = useState("");                // state email
-  const [password, setPassword] = useState("");          // state password
+  const [loading, setLoading] = useState(false); // loading cho nút bấm
+  const [email, setEmail] = useState(""); // state email
+  const [password, setPassword] = useState(""); // state password
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -37,10 +37,14 @@ export default function LoginPage() {
       if (from) {
         router.replace(from);
       } else {
+        setTimeout(() => {
+          const role =
+            (user?.role as keyof typeof HOME_BY_ROLE) ||
+            ("USER" as keyof typeof HOME_BY_ROLE);
+          const home = HOME_BY_ROLE[role] ?? DEFAULT_HOME;
+          router.replace(home);
+        }, 10000);
         // không có ?from → chuyển theo role
-        const role = (user?.role as keyof typeof HOME_BY_ROLE) || ("USER" as keyof typeof HOME_BY_ROLE);
-        const home = HOME_BY_ROLE[role] ?? DEFAULT_HOME;
-        router.replace(home);
       }
     } catch (err: any) {
       setError(err?.message || "Đăng nhập thất bại. Vui lòng thử lại.");
@@ -86,11 +90,7 @@ export default function LoginPage() {
           <p className="mt-2 text-base text-gray-500">
             Chào mừng quay trở lại! Hãy đăng nhập để tiếp tục.
           </p>
-          {error && (
-            <p className="mt-3 text-sm text-red-600">
-              {error}
-            </p>
-          )}
+          {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
         </motion.div>
 
         {/* Form */}
@@ -189,7 +189,7 @@ export default function LoginPage() {
               className={`w-full flex justify-center items-center gap-2 py-2 px-4 border border-transparent rounded-lg shadow-sm text-base font-semibold text-white bg-gradient-to-r from-orange-500 to-orange-400 hover:from-orange-600 hover:to-orange-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400 transition
                 ${disabled ? "opacity-60 cursor-not-allowed" : ""}`}
             >
-              {(loading || authLoading) ? (
+              {loading || authLoading ? (
                 <svg
                   className="animate-spin h-5 w-5 mr-2 text-white"
                   viewBox="0 0 24 24"

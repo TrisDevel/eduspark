@@ -10,8 +10,10 @@
     "postinstall": "msw init public/ --save"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
     "framer-motion": "^12.23.12",
     "lucide-react": "^0.544.0",
+    "monaco-editor": "^0.53.0",
     "next": "15.4.5",
     "react": "19.1.0",
     "react-dom": "19.1.0",

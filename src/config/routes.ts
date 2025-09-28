@@ -3,7 +3,7 @@ export const ROUTES = {
   home: "/",
   marketing: "/",
   auth: {
-    login: "/login",
+    login: "login",
     register: "/register",
   },
   dashboard: {
@@ -19,6 +19,9 @@ export const ROUTES = {
     index: "/admin",
     problems: "/admin/problems",
     testcases: "/admin/testcases",
+  },
+  courses:{
+    all :"/courses"
   },
   errors: {
     notFound: "/not-found",

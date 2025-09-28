@@ -63,7 +63,7 @@ export default function Navbar() {
                     <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                       <div className="py-1">
                         <Link
-                          href={`${item.href}/all`}
+                          href={`${item.href}`}
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
                         >
                           Tất cả {item.name.toLowerCase()}

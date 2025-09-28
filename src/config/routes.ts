@@ -20,6 +20,9 @@ export const ROUTES = {
     problems: "/admin/problems",
     testcases: "/admin/testcases",
   },
+  courses:{
+    all :"/courses"
+  },
   errors: {
     notFound: "/not-found",
     error: "/error",

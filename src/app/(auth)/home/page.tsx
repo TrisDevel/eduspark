@@ -1,12 +1,10 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import Navbar from "@/components/layout/Navbar";
 import FeatureHighlights from "@/features/home/components/FeatureHighlights";
 import PopularCourses from "@/features/home/components/PopularCourses";
 import PricingPlans from "@/features/home/components/PricingPlans";
 import Testimonials from "@/features/home/components/Testimonials";
-import Footer from "@/components/layout/Footer";
 
 
 export default function HomePage() {
@@ -19,7 +17,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar />
 
       <main className="relative min-h-[calc(100vh-4rem)] bg-gradient-to-br from-gray-900 via-gray-800 to-orange-600 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-orange-500/20"></div>
@@ -145,7 +142,6 @@ export default function HomePage() {
 
       <Testimonials />
 
-      <Footer />
     </div>
   );
 }

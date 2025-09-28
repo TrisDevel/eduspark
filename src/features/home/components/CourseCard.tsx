@@ -1,6 +1,7 @@
 "use client";
 import { Course } from "@/features/home/types/Course";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 interface CourseCardProps {
   course: Course;
@@ -31,10 +32,11 @@ export default function CourseCard({ course }: CourseCardProps) {
         </div>
 
         {/* Course Title */}
+        <Link href={`/courses/${course.id}`}>
         <h3 className="text-lg font-bold text-gray-800 mb-3 line-clamp-2">
           {course.title}
         </h3>
-
+        </Link>
         {/* Description (only for first course) */}
         {course.description && (
           <p className="text-sm text-gray-500 mb-4 line-clamp-3">

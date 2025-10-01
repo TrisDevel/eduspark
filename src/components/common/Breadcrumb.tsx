@@ -14,7 +14,7 @@ type BreadcrumbProps = {
 export default function Breadcrumb({ items, className }: BreadcrumbProps) {
   return (
     <nav aria-label="Breadcrumb" className={className || ""}>
-      <ol className="flex items-center text-sm text-gray-500 gap-2">
+      <ol className="flex items-center text-sm text-gray-400 gap-2">
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
           return (
@@ -22,16 +22,16 @@ export default function Breadcrumb({ items, className }: BreadcrumbProps) {
               {item.href && !isLast ? (
                 <Link
                   href={item.href}
-                  className="hover:text-orange-600 transition-colors"
+                  className="hover:text-orange-400 transition-colors"
                 >
                   {item.label}
                 </Link>
               ) : (
-                <span className="text-gray-700 font-medium">{item.label}</span>
+                <span className="text-gray-300 font-medium">{item.label}</span>
               )}
               {!isLast && (
                 <svg
-                  className="w-3.5 h-3.5 text-gray-400"
+                  className="w-3.5 h-3.5 text-gray-500"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"

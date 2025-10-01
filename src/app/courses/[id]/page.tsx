@@ -59,7 +59,7 @@ export default function CourseDetailPage() {
                   className={`py-3 border-b-2 -mb-px ${
                     i === 0
                       ? "border-orange-500 text-orange-600"
-                      : "border-transparent text-gray-600 hover:text-gray-900"
+                      : "border-transparent text-gray-600 hover:text-gray-900 cursor-pointer"
                   }`}
                 >
                   {t}

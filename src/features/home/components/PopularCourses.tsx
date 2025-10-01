@@ -2,10 +2,11 @@
 import { motion } from "framer-motion";
 import CourseCard from "./CourseCard";
 import useCourses from "@/features/courses/hooks/useCourses";
-
+import { useRouter } from "next/navigation";
 export default function PopularCourses() {
   const { courses } = useCourses();
   console.log(courses);
+  const router = useRouter();
   return (
     <section className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -55,7 +56,8 @@ export default function PopularCourses() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-gradient-to-r from-purple-700 to-purple-500 hover:from-purple-800 hover:to-blue-600 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200"
+              onClick={() => router.push("/courses")}
+              className=" cursor-pointer bg-gradient-to-r from-purple-700 to-purple-500 hover:from-purple-800 hover:to-blue-600 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200"
             >
               Tham khảo thêm
             </motion.button>

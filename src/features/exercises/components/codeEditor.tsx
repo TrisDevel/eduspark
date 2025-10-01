@@ -2,7 +2,13 @@
 "use client";
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { debounce, EDITOR_OPTIONS, loadCode, MonacoLang, saveCode } from "@/lib/monaco";
+import {
+  debounce,
+  EDITOR_OPTIONS,
+  loadCode,
+  MonacoLang,
+  saveCode,
+} from "@/lib/monaco";
 
 // Dynamic import Monaco (chỉ chạy ở client)
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
@@ -16,12 +22,17 @@ const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
 
 type Props = {
   exerciseId: string;
-  language: MonacoLang;              // "javascript" | "python" | ...
+  language: MonacoLang; // "javascript" | "python" | ...
   onChange?: (code: string) => void; // callback cho parent (nếu cần)
-  height?: string | number;          // mặc định 460
+  height?: string | number; // mặc định 460
 };
 
-export default function CodeEditor({ exerciseId, language, onChange, height = 460 }: Props) {
+export default function CodeEditor({
+  exerciseId,
+  language,
+  onChange,
+  height = 460,
+}: Props) {
   const [value, setValue] = useState("");
   const debouncedSave = useMemo(() => debounce(saveCode, 300), []);
   const latestLang = useRef(language);
@@ -40,14 +51,14 @@ export default function CodeEditor({ exerciseId, language, onChange, height = 46
   };
 
   return (
-    <div className="rounded-xl border bg-white shadow-sm">
+    <div className="rounded-xl border border-gray-700 bg-gray-800 shadow-sm">
       <MonacoEditor
         height={height}
         language={language}
         value={value}
         onChange={handleChange}
         options={EDITOR_OPTIONS as any}
-        theme="vs-dark"               // hoặc "light" tuỳ theme của bạn
+        theme="vs-dark"
       />
     </div>
   );

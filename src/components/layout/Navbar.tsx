@@ -1,11 +1,14 @@
 "use client";
+import { useAuth } from "@/contexts/authProvider";
 import Link from "next/link";
 
 export default function Navbar() {
+  const { user } = useAuth();
+  console.log(user);
   const navigationItems = [
     { name: "Trang Chủ", href: "/", hasDropdown: true },
     { name: "Khóa Học", href: "/courses", hasDropdown: true },
-    { name: "Luyện Tập", href: "/practice", hasDropdown: true },
+    { name: "Luyện Tập", href: "/exercises", hasDropdown: true },
     { name: "Lớp Học", href: "/classes", hasDropdown: true },
   ];
 
@@ -89,6 +92,14 @@ export default function Navbar() {
           </div>
 
           {/* Right Side Actions */}
+          {user ? (
+            <Link
+              href="/profile"
+              className="text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors"
+            >
+              {user.name}
+            </Link>
+          ) : (
           <div className="flex items-center space-x-4">
             <Link
               href="/login"
@@ -103,6 +114,7 @@ export default function Navbar() {
               Đăng ký
             </Link>
           </div>
+          )}
 
           {/* Mobile menu button */}
           <div className="md:hidden">
@@ -145,22 +157,31 @@ export default function Navbar() {
               {item.name}
             </Link>
           ))}
-          <div className="pt-4 pb-3 border-t border-gray-200">
-            <div className="flex items-center px-3 space-x-3">
-              <Link
-                href="/login"
-                className="text-base font-medium text-gray-700 hover:text-orange-500 transition-colors"
-              >
-                Đăng nhập
-              </Link>
-              <Link
-                href="/register"
-                className="bg-gradient-to-r from-orange-500 to-orange-400 hover:from-orange-600 hover:to-orange-500 text-white px-4 py-2 rounded-lg text-base font-medium transition-all duration-200"
-              >
-                Đăng ký
-              </Link>
+          {user ? (
+            <Link
+              href="/profile"
+              className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-orange-500"
+            >
+              {user.name}
+            </Link>
+          ) : (
+            <div className="pt-4 pb-3 border-t border-gray-200">
+              <div className="flex items-center px-3 space-x-3">
+                <Link
+                  href="/login"
+                  className="text-base font-medium text-gray-700 hover:text-orange-500 transition-colors"
+                >
+                  Đăng nhập
+                </Link>
+                <Link
+                  href="/register"
+                  className="bg-gradient-to-r from-orange-500 to-orange-400 hover:from-orange-600 hover:to-orange-500 text-white px-4 py-2 rounded-lg text-base font-medium transition-all duration-200"
+                >
+                  Đăng ký
+                </Link>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </nav>

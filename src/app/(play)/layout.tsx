@@ -1,16 +1,13 @@
-import "./globals.css";
+import "../globals.css";
 import { Toaster } from "sonner";
 import type { Metadata } from "next";
 import { Be_Vietnam_Pro } from "next/font/google";
 import { AuthProvider } from "@/contexts/authProvider";
 import MockInit from "@/mocks/init";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import ConditionalLayout from "./ConditionalLayout";
 
 export const metadata: Metadata = {
-  title: "EduSpark",
-  description: "Learning Platform",
+  title: "EduSpark - Exercise",
+  description: "Learning Platform - Exercise",
 };
 
 const beVietnamPro = Be_Vietnam_Pro({
@@ -19,7 +16,7 @@ const beVietnamPro = Be_Vietnam_Pro({
   variable: "--font-be-vietnam-pro",
 });
 
-export default function RootLayout({
+export default function PlayLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -28,9 +25,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={beVietnamPro.className}>
         <MockInit />
-        <AuthProvider>
-          <ConditionalLayout>{children}</ConditionalLayout>
-        </AuthProvider>
+        <AuthProvider>{children}</AuthProvider>
         <Toaster position="top-right" richColors closeButton />
       </body>
     </html>

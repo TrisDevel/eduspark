@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
+    "date-fns": "^4.1.0",
     "framer-motion": "^12.23.12",
     "lucide-react": "^0.544.0",
     "monaco-editor": "^0.53.0",

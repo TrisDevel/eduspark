@@ -1,103 +1,147 @@
-import Image from "next/image";
+"use client";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import FeatureHighlights from "@/features/home/components/FeatureHighlights";
+import PopularCourses from "@/features/home/components/PopularCourses";
+import PricingPlans from "@/features/home/components/PricingPlans";
+import Testimonials from "@/features/home/components/Testimonials";
 
-export default function Home() {
+
+export default function HomePage() {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Searching for:", searchQuery);
+  };
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen bg-white">
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      <main className="relative min-h-[calc(100vh-4rem)] bg-gradient-to-br from-gray-900 via-gray-800 to-orange-600 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-orange-500/20"></div>
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-gray-900/50"></div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[calc(100vh-8rem)]">
+            <div className="space-y-8">
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="text-gray-300 text-sm font-medium uppercase tracking-wider"
+              >
+                KHÔNG THẦY ĐỒ MÀY LÀM NÊN
+              </motion.div>
+
+              <motion.h1
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight"
+              >
+                Nền tảng luyện code và lớp học công nghệ tích hợp AI
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.6 }}
+                className="text-lg md:text-xl text-gray-200 leading-relaxed max-w-2xl"
+              >
+                EduSpark cung cấp môi trường luyện code trực tuyến hiện đại với
+                AI review thông minh, giúp học viên và giáo viên tối ưu hóa quá
+                trình học tập và giảng dạy lập trình.
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.8 }}
+                className="pt-4"
+              >
+                <a
+                  href="/courses"
+                  className="text-white text-lg font-medium hover:text-orange-300 transition-colors duration-300 underline underline-offset-4"
+                >
+                  Tham gia khóa học miễn phí
+                </a>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 1.0 }}
+                className="pt-8"
+              >
+                <form onSubmit={handleSearch} className="max-w-md">
+                  <div className="relative flex items-center bg-white rounded-lg shadow-lg">
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Hôm nay học gì?"
+                      className="w-full px-4 py-3 pr-32 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-transparent"
+                    />
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      type="submit"
+                      className="absolute right-1 top-1 bottom-1 px-4 py-2 bg-gradient-to-r from-purple-700 to-purple-500 hover:from-purple-800 hover:to-blue-600 text-white rounded-md font-medium transition-all duration-200 flex items-center gap-2 text-sm"
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        />
+                      </svg>
+                      Tìm kiếm
+                    </motion.button>
+                  </div>
+                </form>
+              </motion.div>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="hidden lg:block relative"
+            >
+              <div className="relative h-96">
+                <motion.div
+                  animate={{
+                    opacity: [0.5, 1, 0.5],
+                    scale: [1, 1.2, 1],
+                  }}
+                  transition={{
+                    duration: 3.5,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                  className="absolute right-0 w-120 h-120 bg-[#F66F23] rounded-full blur-3xl"
+                />
+              </div>
+            </motion.div>
+          </div>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+      <PopularCourses />
+
+      <FeatureHighlights />
+
+      <PricingPlans />
+
+      <Testimonials />
+
     </div>
   );
 }

@@ -84,9 +84,32 @@
 
 
 import { http, HttpResponse } from "msw";
-import { exercisesFixture } from "../fixtures/exercises";
+import { exercisesFixture, topicsFixture, additionalTopicsFixture } from "../fixtures/exercises";
 
 export const exercisesHandlers = [
+  // List
+  http.get("*/api/exercises", () => {
+    const list = exercisesFixture.map(e => ({
+      id: e.id,
+      slug: e.slug,
+      title: e.title,
+      difficulty: e.difficulty,
+      acceptance: e.acceptance ?? Math.round(30 + Math.random() * 40 * 10) / 10,
+      tags: e.tags ?? [],
+      status: e.status ?? "Unseen",
+    }));
+    return HttpResponse.json(list);
+  }),
+
+  // Topics
+  http.get("*/api/topics", () => {
+    return HttpResponse.json(topicsFixture);
+  }),
+
+  // Additional Topics
+  http.get("*/api/topics/additional", () => {
+    return HttpResponse.json(additionalTopicsFixture);
+  }),
   http.get("*/api/exercises/:slug", ({ params }) => {
     const ex = exercisesFixture.find(e => e.slug === String(params.slug));
     return ex
@@ -105,7 +128,7 @@ export const exercisesHandlers = [
       const actual = allPass ? expected : expected + 1; // cố tình sai nếu chưa viết code
       return {
         id: tc.id, input: tc.input, expectedOutput: expected,
-        actualOutput: actual, timeMs: Math.floor(5 + Math.random()*12),
+        actualOutput: actual, timeMs: Math.floor(5 + Math.random() * 12),
         status: actual === expected ? "Passed" : "Failed",
       };
     });

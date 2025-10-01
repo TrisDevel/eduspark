@@ -13,7 +13,8 @@ export const ROUTES = {
   },
   play: {
     courseDetail: (slug: string) => `/play/courses/${slug}`,
-    exerciseDetail: (id: string) => `/play/exercises/${id}`,
+    exercises: `/exercises`,
+    exerciseDetail: (slug: string) => `/exercises/${slug}`,
   },
   admin: {
     index: "/admin",
@@ -22,6 +23,10 @@ export const ROUTES = {
   },
   courses:{
     all :"/courses"
+  },
+  profile: {
+
+    index: "/profile",
   },
   errors: {
     notFound: "/not-found",

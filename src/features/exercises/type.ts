@@ -25,3 +25,15 @@ export type ExerciseDTO = {
   statement: string;
   testCases: { id: string; input: number[]; expectedOutput: number }[];
 };
+
+// Summary item for list page
+export type ExerciseListItem = {
+  id: string;
+  slug: string;
+  title: string;
+  difficulty: "Easy" | "Medium" | "Hard";
+  points: number;
+  acceptance: number; // 0..100
+  tags: string[];
+  status: "Solved" | "Attempted" | "Unseen";
+};

@@ -32,7 +32,7 @@ export default function CourseDetailHero({ course }: Props) {
                     </span>
                   ))}
                 </div>
-                <button className="h-11 px-6 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm md:text-base font-semibold">
+                <button className="h-11 px-6 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm md:text-base font-semibold cursor-pointer">
                   Start Learning Now
                 </button>
               </div>

@@ -1,5 +1,6 @@
 import { api } from "@/lib/fetcher";
-import type { ExerciseDTO, RunResponse } from "@/features/exercises/type";
+import type { ExerciseDTO, RunResponse, ExerciseListItem } from "@/features/exercises/type";
+import type { Topic } from "@/mocks/fixtures/exercises";
 
 // Helper: chuẩn hoá path để tránh // hoặc /api/api
 function normalizeApiPath(p: string) {
@@ -24,6 +25,18 @@ export async function getExercise(slug: string) {
   // Nếu NEXT_PUBLIC_API_URL đã kết thúc /api -> backend route thực tế có thể chỉ /exercises/:slug
   // fetcher đã có fallback bỏ /api nếu 404.
   return api<ExerciseDTO>(`/exercises/${slug}`);
+}
+
+export async function getExercisesList() {
+  return api<ExerciseListItem[]>(`/exercises`);
+}
+
+export async function getTopics() {
+  return api<Topic[]>(`/topics`);
+}
+
+export async function getAdditionalTopics() {
+  return api<string[]>(`/topics/additional`);
 }
 
 export async function runCode(args: { exerciseId: string; language: string; code: string }) {

@@ -39,7 +39,7 @@ export default function CourseContent({ chapters }: Props) {
                   <button
                     key={ch.id}
                     onClick={() => setActiveChapterId(ch.id)}
-                    className={`w-full text-left px-4 py-3 flex items-center justify-between text-sm transition-colors ${
+                    className={`w-full cursor-pointer text-left px-4 py-3 flex items-center justify-between text-sm transition-colors ${
                       ch.id === activeChapterId
                         ? "bg-orange-50 text-orange-600"
                         : "hover:bg-gray-50"
@@ -67,7 +67,7 @@ export default function CourseContent({ chapters }: Props) {
                 {activeChapter?.lessons.map((lesson) => (
                   <div
                     key={lesson.id}
-                    className="p-4 rounded-lg border flex items-center justify-between hover:shadow-sm transition"
+                    className="p-4 rounded-lg border flex items-center justify-between hover:shadow-sm transition cursor-pointer"
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-lg bg-orange-100 text-orange-600 grid place-items-center font-semibold">

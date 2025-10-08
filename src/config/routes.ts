@@ -24,6 +24,10 @@ export const ROUTES = {
   courses:{
     all :"/courses"
   },
+  classes: {
+    all: "/classes",
+    detail: (id: string) => `/classes/${id}`,
+  },
   profile: {
 
     index: "/profile",

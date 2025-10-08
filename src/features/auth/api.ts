@@ -5,12 +5,18 @@ import { api } from "@/lib/fetcher";
 export type AuthUser = {
   id: string;
   email: string;
-  name?: string;
-  role?: "ADMIN" | "TEACHER" | "USER";
+  firstName?: string;
+  lastName?: string;
+  username?: string;
+  roles?: Role;
 };
+export type Role = {
+  id: string;
+  name?: "ADMIN" | "TEACHER" | "USER" | "STUDENT";
+}
 
-export type LoginRes = { accessToken: string; user: AuthUser };
-export type RegisterPayload = { name: string; email: string; password: string };
+export type LoginRes = { token: string; refreshToken: string; user: AuthUser };
+export type RegisterPayload = { fullName: string; email: string; password: string; username: string; phone: string };
 export type RegisterRes = { user?: AuthUser; message?: string };
 
 // === Auth APIs ===

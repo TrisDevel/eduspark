@@ -1,17 +1,18 @@
 "use client";
 import { useEffect, useState } from "react";
 import { getCourseById } from "@/features/courses/api";
-import type { Course } from "@/features/home/types/Course";
+import type { Course } from "@/features/courses/type/Course";
+import type { CourseDetail } from "@/features/courses/type/CourseDetail";
 
 type UseCourseState = {
-  course: Course | null;
+  course: CourseDetail | null;
   loading: boolean;
   error: string | null;
   refetch: (id?: string | number) => Promise<void>;
 };
 
-export default function useCourse(courseId: string | number): UseCourseState {
-  const [course, setCourse] = useState<Course | null>(null);
+export default function useCourseById(courseId: string | number): UseCourseState {
+  const [course, setCourse] = useState<CourseDetail | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,9 +20,10 @@ export default function useCourse(courseId: string | number): UseCourseState {
     setLoading(true);
     setError(null);
     try {
-      const data = await getCourseById(id);
-      setCourse(data as Course);
-    } catch (e) {
+      const res = await getCourseById(id);
+      console.log(res);
+      setCourse(res as CourseDetail);
+    } catch (e) { 
       setError(e instanceof Error ? e.message : "Unknown error");
       setCourse(null);
     } finally {

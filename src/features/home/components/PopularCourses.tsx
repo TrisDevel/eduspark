@@ -5,7 +5,6 @@ import useCourses from "@/features/courses/hooks/useCourses";
 import { useRouter } from "next/navigation";
 export default function PopularCourses() {
   const { courses } = useCourses();
-  console.log(courses);
   const router = useRouter();
   return (
     <section className="py-16 bg-gray-50">

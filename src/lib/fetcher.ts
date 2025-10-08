@@ -26,8 +26,17 @@ async function waitMswReady() {
   });
 }
 
+// mốt để vô typetype
+export interface ApiResponse<T> {
+  timestamp?: string;
+  success: boolean;
+  message: string;
+  path?: string;
+  data: T;
+}
+
 // Hàm chính để gọi API, generic type <T> là kiểu dữ liệu muốn nhận về
-export async function api<T = unknown>(path: string, init: RequestInit = {}): Promise<T> {
+export async function api<T = unknown>(path: string, init: RequestInit = {}): Promise<ApiResponse<T>> {
   // ⭐ Đảm bảo MSW đã start trước khi gọi fetch (tránh race condition)
   if (typeof window !== "undefined") await waitMswReady();
 
@@ -55,7 +64,12 @@ export async function api<T = unknown>(path: string, init: RequestInit = {}): Pr
   const res = await fetch(url, { ...init, headers });
 
   // Nếu status 204 (No Content) → trả về null
-  if (res.status === 204) return null as T;
+  if (res.status === 204)
+     return {
+      success: true,
+      message: "No Content",
+      data: null as T,
+    };
 
   // Nếu request lỗi (status ngoài 2xx)
   if (!res.ok) {
@@ -73,5 +87,9 @@ export async function api<T = unknown>(path: string, init: RequestInit = {}): Pr
   }
 
   // Nếu response OK → trả về dữ liệu đã parse JSON, hoặc text nếu không phải JSON
-  return isJson(res) ? (await res.json() as T) : (await res.text() as unknown as T);
+  const json = isJson(res)
+  ? ((await res.json()) as ApiResponse<T>)
+  : ((await res.text()) as unknown as ApiResponse<T>);
+
+return json;
 }

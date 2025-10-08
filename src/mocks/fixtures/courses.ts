@@ -1,4 +1,4 @@
-import { Course } from "@/features/home/types/Course";
+import { Course } from "@/features/courses/type/Course";
 
 export const mockCourses: Course[] = [
 

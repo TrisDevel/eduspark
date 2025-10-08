@@ -15,8 +15,7 @@ export type Exercise = {
   points: number;
   characterLimit: number;
   statement: string;        // mô tả đề
-  testCases: TestCase[];    // test public (demo)
-  // fields for list
+  testCases: TestCase[];    
   acceptance?: number;      // 0..100
   tags?: string[];
   status?: "Solved" | "Attempted" | "Unseen";

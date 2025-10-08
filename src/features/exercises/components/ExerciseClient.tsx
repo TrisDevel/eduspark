@@ -80,8 +80,8 @@ export default function ExerciseClient({ slug }: { slug: string }) {
     try {
       console.debug("[handleSubmit] exerciseId=", ex.id, "lang=", lang);
       const res = await submit(code, lang);
-      toast[res.verdict === "ACCEPTED" ? "success" : "error"](
-        res.verdict === "ACCEPTED" ? "Accepted 🎉" : "Rejected"
+      toast[res.data.verdict === "ACCEPTED" ? "success" : "error"](
+        res.data.verdict === "ACCEPTED" ? "Accepted 🎉" : "Rejected"
       );
     } catch (e: any) {
       console.error("[handleSubmit] error:", e);

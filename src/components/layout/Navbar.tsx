@@ -4,7 +4,6 @@ import Link from "next/link";
 
 export default function Navbar() {
   const { user } = useAuth();
-  console.log(user);
   const navigationItems = [
     { name: "Trang Chủ", href: "/", hasDropdown: true },
     { name: "Khóa Học", href: "/courses", hasDropdown: true },
@@ -97,7 +96,7 @@ export default function Navbar() {
               href="/profile"
               className="text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors"
             >
-              {user.name}
+              {user.fullName}
             </Link>
           ) : (
           <div className="flex items-center space-x-4">
@@ -162,7 +161,7 @@ export default function Navbar() {
               href="/profile"
               className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-orange-500"
             >
-              {user.name}
+              {user.fullName}
             </Link>
           ) : (
             <div className="pt-4 pb-3 border-t border-gray-200">

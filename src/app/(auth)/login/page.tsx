@@ -16,7 +16,7 @@ export default function LoginPage() {
   const { login, loading: authLoading, user } = useAuth();
 
   const [loading, setLoading] = useState(false); // loading cho nút bấm
-  const [email, setEmail] = useState(""); // state email
+  const [username, setUsername] = useState(""); // state username
   const [password, setPassword] = useState(""); // state password
   const [error, setError] = useState<string | null>(null);
 
@@ -31,7 +31,8 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
-      await login(email, password);
+      
+      await login(username, password);
       // ưu tiên quay lại đường dẫn cũ nếu có ?from
       const from = params.get("from");
       if (from) {
@@ -47,6 +48,8 @@ export default function LoginPage() {
         // không có ?from → chuyển theo role
       }
     } catch (err: any) {
+      console.log(err);
+
       setError(err?.message || "Đăng nhập thất bại. Vui lòng thử lại.");
     } finally {
       setLoading(false);
@@ -104,24 +107,24 @@ export default function LoginPage() {
           <div className="space-y-5">
             <div>
               <label
-                htmlFor="email"
+                htmlFor="username"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Email
+                Username
               </label>
               <motion.input
                 whileFocus={{ scale: 1.01 }}
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                type="email"
-                id="email"
+                type="username"
+                id="username"
                 autoComplete="username"
                 required
-                aria-label="Email"
+                aria-label="Username"
                 className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm shadow-sm placeholder-gray-400
                 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition"
-                placeholder="Nhập Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Nhập Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 disabled={disabled}
               />
             </div>

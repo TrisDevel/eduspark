@@ -33,28 +33,30 @@ export default function RegisterPage() {
 
     // Lấy dữ liệu form không cần thêm state cho email/fullname
     const fd = new FormData(e.currentTarget);
-    const name = String(fd.get("fullname") || "");
+    const fullName = String(fd.get("fullName") || "");
     const email = String(fd.get("email") || "");
+    const username = String(fd.get("username") || "");
     const pw = String(fd.get("password") || "");
+    const phone = String(fd.get("phone") || "");
 
     try {
-      await registerApi({ name, email, password: pw });
+      await registerApi({ fullName, email, password: pw, username, phone });
 
-      // ⭐ Cách 1: Auto-login luôn (khuyến nghị)
-      try {
-        await login(email, pw);
-        // redirect theo role nếu có, mặc định /dashboard
-        const role = (user?.role as keyof typeof HOME_BY_ROLE) || "USER";
-        const home = HOME_BY_ROLE[role] ?? DEFAULT_HOME;
-        router.replace(home);
-      } catch {
-        // nếu login ngay thất bại (rare), fallback sang /login
-        router.replace("/login");
-      }
+      // // ⭐ Cách 1: Auto-login luôn (khuyến nghị)
+      // try {
+      //   await login(email, pw);
+      //   // redirect theo role nếu có, mặc định /dashboard
+      //   const role = (user?.role as keyof typeof HOME_BY_ROLE) || "USER";
+      //   const home = HOME_BY_ROLE[role] ?? DEFAULT_HOME;
+      //   router.replace(home);
+      // } catch {
+      //   // nếu login ngay thất bại (rare), fallback sang /login
+      //   router.replace("/login");
+      // }
 
       // ⭐ Cách 2 (nếu bạn không muốn auto-login):
-      // setSuccess("Đăng ký thành công! Vui lòng đăng nhập.");
-      // router.replace("/login");
+      setSuccess("Đăng ký thành công! Vui lòng đăng nhập.");
+      router.replace("/login");
 
     } catch (err: any) {
       setError(err?.message || "Đăng ký thất bại. Vui lòng thử lại.");
@@ -132,13 +134,33 @@ export default function RegisterPage() {
                 whileFocus={{ scale: 1.01 }}
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 type="text"
-                id="fullname"
-                name="fullname"                             // ✨ thêm name để FormData lấy được
+                id="fullName"
+                name="fullName"                             // ✨ thêm name để FormData lấy được
                 autoComplete="name"
                 required
                 aria-label="Họ và tên"
                 className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition"
                 placeholder="Nhập họ và tên"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Tên đăng nhập
+              </label>
+              <motion.input
+                whileFocus={{ scale: 1.01 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                type="text"
+                id="username"
+                name="username"                             // ✨ thêm name để FormData lấy được
+                autoComplete="name"
+                required
+                aria-label="Tên đăng nhập"
+                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition"
+                placeholder="Nhập tên đăng nhập"
               />
             </div>
             <div>
@@ -159,6 +181,26 @@ export default function RegisterPage() {
                 aria-label="Email"
                 className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition"
                 placeholder="Nhập Email"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="phone"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Số điện thoại
+              </label>
+              <motion.input
+                whileFocus={{ scale: 1.01 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                type="phone"
+                id="phone"
+                name="phone"                                // ✨ thêm name
+                autoComplete="phone"
+                required
+                aria-label="Số điện thoại"
+                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition"
+                placeholder="Nhập Số điện thoại"
               />
             </div>
             <div>

@@ -1,72 +1,85 @@
-
 "use client";
 
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
-import type { Role } from "@/constants/role";
-import{ ROUTES }from "@/config/routes";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { api } from "@/lib/fetcher";
+import { LoginRes } from "@/features/auth/api";
+import { User } from "./types/UserDto";
 
-export type User = { id: string; email: string; role?: Role; name?: string } | null;
+
 
 type AuthContextValue = {
-  user: User;
+  user: User | null;
   token: string | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => void;
-  setUser: (u: User) => void; // khi cần cập nhật hồ sơ
+  setUser: (u: User | null) => void; // khi cần cập nhật hồ sơ
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Khởi động: đọc localStorage
   useEffect(() => {
     try {
-      const t = localStorage.getItem("access_token");
+      const t = localStorage.getItem("token");
+      const rt = localStorage.getItem("refresh_token");
       const u = localStorage.getItem("user");
       if (t) setToken(t);
+      if (rt) setRefreshToken(rt);
       if (u) setUser(JSON.parse(u));
     } catch {}
     setLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (username: string, password: string) => {
     setLoading(true);
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+    const res = await api<LoginRes>("/auth/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ username, password }),
     });
-    if (!res.ok) {
+    console.log(res.data);
+    if (!res) {
       setLoading(false);
       throw new Error("Sai tài khoản hoặc mật khẩu");
     }
     // BE nên trả { accessToken, user }
-    const { accessToken, user } = await res.json();
+    const { token, user, refreshToken } = res.data;
 
-    localStorage.setItem("access_token", accessToken);
+    localStorage.setItem("token", token);
+    localStorage.setItem("refresh_token", refreshToken);
     localStorage.setItem("user", JSON.stringify(user));
 
-    setToken(accessToken);
-    setUser(user);
+    setToken(token);
+    setRefreshToken(refreshToken);
+    setUser(user as User | null);
     setLoading(false);
   };
 
   const logout = () => {
     // (tuỳ) gọi /auth/logout ở BE nếu có
-    localStorage.removeItem("access_token");
+    localStorage.removeItem("token");
+    localStorage.removeItem("refresh_token");
     localStorage.removeItem("user");
     setToken(null);
-    setUser(null);
+    setRefreshToken(null);
+    setUser(null as User | null);
   };
 
   const value = useMemo(
-    () => ({ user, token, loading, login, logout, setUser }),
-    [user, token, loading]
+    () => ({ user, token, refreshToken, loading, login, logout, setUser }),
+    [user, token, refreshToken, loading]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

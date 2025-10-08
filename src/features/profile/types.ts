@@ -7,9 +7,6 @@ export interface UserProfile {
   avatar?: string;
   bio?: string;
   location?: string;
-  website?: string;
-  github?: string;
-  linkedin?: string;
   phone?: string;
   skills?: string[];
   level?: number;

@@ -13,7 +13,7 @@ export function useRunCode(exerciseId: string) {
     setError(null);
     try {
       const res = await runCode({ exerciseId, language, code });
-      setLastRun(res);
+      setLastRun(res.data);
       return res;
     } catch (e: any) {
       setError(e.message || "Run failed");

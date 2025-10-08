@@ -1,5 +1,5 @@
 "use client";
-import { Course } from "@/features/home/types/Course";
+import { Course } from "@/features/courses/type/Course";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
@@ -18,8 +18,8 @@ export default function CourseCard({ course }: CourseCardProps) {
         {/* Image Area */}
         <div className="h-48 relative overflow-hidden">
           <img
-            src={course.image.src}
-            alt={course.title}
+            src={course.image}
+            alt={course.name}
             className="w-full h-full object-cover"
           />
         </div>
@@ -28,13 +28,12 @@ export default function CourseCard({ course }: CourseCardProps) {
         <div className="p-6 flex flex-col flex-1">
           {/* Stats Row */}
           <div className="flex justify-between text-sm text-gray-500 mb-3">
-            <span>{course.students.toLocaleString()} Students</span>
-            <span>{course.duration}</span>
+            <span>{course.durationInWeeks}</span>
           </div>
 
           {/* Course Title */}
           <h3 className="text-lg font-bold text-gray-800 mb-3 line-clamp-2">
-            {course.title}
+            {course.name}
           </h3>
           {/* Description (only for first course) */}
           {course.description && (

@@ -73,16 +73,16 @@ export const authHandlers = [
     return HttpResponse.json({ accessToken, user }, { status: 200 });
   }),
 
-  http.post("*/api/auth/register", async ({ request }) => {
-    const { name, email, password } = (await request.json()) as any;
-    if (mockUsers.some(u => u.email === email)) {
-      return HttpResponse.json({ message: "Email đã tồn tại" }, { status: 400 });
-    }
-    const user = { id: String(mockUsers.length + 1), name, email, password, role: "USER" as const };
-    mockUsers.push(user);
-    const accessToken = `mock.${user.id}.${user.role}`;
-    return HttpResponse.json({ accessToken, user }, { status: 201 });
-  }),
+  // http.post("*/api/auth/register", async ({ request }) => {
+  //   const { name, email, password } = (await request.json()) as any;
+  //   if (mockUsers.some(u => u.email === email)) {
+  //     return HttpResponse.json({ message: "Email đã tồn tại" }, { status: 400 });
+  //   }
+  //   const user = { id: String(mockUsers.length + 1), name, email, password, role: "USER" as const };
+  //   mockUsers.push(user);
+  //   const accessToken = `mock.${user.id}.${user.role}`;
+  //   return HttpResponse.json({ accessToken, user }, { status: 201 });
+  // }),
 
   http.post("*/api/auth/logout", () => HttpResponse.json({ ok: true })),
 ];

@@ -40,11 +40,11 @@ export default function AllCourses() {
     return courses.filter((c) => {
       const matchText =
         !q ||
-        c.title.toLowerCase().includes(q) ||
-        (c.description || "").toLowerCase().includes(q);
-      const matchTag =
+          c.name.toLowerCase().includes(q) ||
+          (c.description || "").toLowerCase().includes(q);
+        const matchTag =
         activeTag === "All" ||
-        c.title.toLowerCase().includes(activeTag.toLowerCase());
+        c.name.toLowerCase().includes(activeTag.toLowerCase());
       return matchText && matchTag;
     });
   }, [courses, query, activeTag]);

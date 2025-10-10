@@ -12,7 +12,7 @@ export default async function Page({
       ? await (params as Promise<{ slug: string }>)
       : (params as { slug: string });
   console.debug(
-    "[page exercises/[slug]] typeof params =",
+    "[page exercises/[slug]] typeof params =" ,
     typeof params,
     "slug =",
     resolved.slug

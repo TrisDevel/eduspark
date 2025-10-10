@@ -466,6 +466,12 @@ export default function CourseDetailPage() {
                 <div className="p-6 space-y-4">
                   <div className="text-center">
                     <div className="text-3xl font-bold text-gray-900">
+                      {course.course.name}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {course.course.description}
+                    </div>
+                    <div className="text-3xl font-bold text-gray-900">
                       {course.course.price > 0
                         ? `${course.course.price.toLocaleString()} VND`
                         : "Miễn phí"}

@@ -37,8 +37,14 @@ export function useExercisesList() {
     setLoading(true);
     setError(null);
     getExercisesList()
-      .then((d) => setData(d))
-      .catch((e) => setError(e.message || "Failed to load exercises"))
+      .then((d) => {
+        console.debug("[useExercisesList] received data:", d);
+        setData(d);
+      })
+      .catch((e) => {
+        console.error("[useExercisesList] error:", e);
+        setError(e.message || "Failed to load exercises");
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -54,8 +60,14 @@ export function useTopics() {
     setLoading(true);
     setError(null);
     getTopics()
-      .then((d) => setData(d))
-      .catch((e) => setError(e.message || "Failed to load topics"))
+      .then((response) => {
+        console.debug("[useTopics] received data:", response);
+        setData(response.data);
+      })
+      .catch((e) => {
+        console.error("[useTopics] error:", e);
+        setError(e.message || "Failed to load topics");
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -71,8 +83,14 @@ export function useAdditionalTopics() {
     setLoading(true);
     setError(null);
     getAdditionalTopics()
-      .then((d) => setData(d))
-      .catch((e) => setError(e.message || "Failed to load additional topics"))
+      .then((response) => {
+        console.debug("[useAdditionalTopics] received data:", response);
+        setData(response.data);
+      })
+      .catch((e) => {
+        console.error("[useAdditionalTopics] error:", e);
+        setError(e.message || "Failed to load additional topics");
+      })
       .finally(() => setLoading(false));
   }, []);
 

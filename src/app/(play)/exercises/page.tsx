@@ -21,16 +21,18 @@ export default function ExercisesPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>("Tất cả");
   const [sortBy, setSortBy] = useState<string>("default");
 
-  const filteredExercises = exercises?.filter((exercise) => {
-    const matchesTopic =
-      selectedTopic === "All" || exercise.tags?.includes(selectedTopic);
-    const matchesSearch = exercise.title
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const matchesDifficulty =
-      difficultyFilter === "All" || exercise.difficulty === difficultyFilter;
-    return matchesTopic && matchesSearch && matchesDifficulty;
-  });
+  const filteredExercises = Array.isArray(exercises) 
+    ? exercises.filter((exercise) => {
+        const matchesTopic =
+          selectedTopic === "All" || exercise.tags?.includes(selectedTopic);
+        const matchesSearch = (exercise.title || exercise.name || "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
+        const matchesDifficulty =
+          difficultyFilter === "All" || exercise.difficulty === difficultyFilter;
+        return matchesTopic && matchesSearch && matchesDifficulty;
+      })
+    : [];
 
   // Sort exercises
   const sortedExercises = [...(filteredExercises || [])].sort((a, b) => {
@@ -44,7 +46,9 @@ export default function ExercisesPage() {
           difficultyOrder[b.difficulty as keyof typeof difficultyOrder]
         );
       case "title":
-        return a.title.localeCompare(b.title);
+        const titleA = a.title || a.name || "";
+        const titleB = b.title || b.name || "";
+        return titleA.localeCompare(titleB);
       default:
         return 0;
     }
@@ -210,6 +214,9 @@ export default function ExercisesPage() {
                     Level
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
+                    Language
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">
                     Tags
                   </th>
                 </tr>
@@ -243,11 +250,11 @@ export default function ExercisesPage() {
                         href={ROUTES.play.exerciseDetail(exercise.slug)}
                         className="text-gray-900 hover:text-orange-500 text-sm transition-colors duration-300"
                       >
-                        {exercise.title}
+                        {exercise.title || exercise.name || "Untitled Exercise"}
                       </Link>
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600">
-                      {exercise.acceptance?.toFixed(1)}%
+                      {exercise.acceptance?.toFixed(1) || "0.0"}%
                     </td>
                     <td className="px-4 py-3">
                       <span
@@ -260,6 +267,11 @@ export default function ExercisesPage() {
                         }`}
                       >
                         {exercise.difficulty}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded">
+                        {exercise.language || 'Unknown'}
                       </span>
                     </td>
                     <td className="px-4 py-3">

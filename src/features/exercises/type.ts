@@ -32,8 +32,14 @@ export type ExerciseListItem = {
   slug: string;
   title: string;
   difficulty: "Easy" | "Medium" | "Hard";
-  points: number;
-  acceptance: number; // 0..100
-  tags: string[];
-  status: "Solved" | "Attempted" | "Unseen";
+  points?: number;
+  acceptance?: number; // 0..100
+  tags?: string[];
+  status?: "Solved" | "Attempted" | "Unseen";
+  level?: "EASY" | "MEDIUM" | "HARD"; // Backend level format
+  name?: string; // Backend name field
+  description?: string;
+  exerciseType?: "PUBLIC" | "COURSE" | "PROTECTED";
+  isPublic?: boolean;
+  language?: string; // Programming language
 };

@@ -21,14 +21,101 @@ async function assertJson(res: Response, endpoint: string) {
   }
 }
 
+// Helper function to map Backend Exercise to Frontend ExerciseListItem
+function mapBackendExerciseToListItem(backendExercise: any): ExerciseListItem {
+  const difficultyMap: Record<string, 'Easy' | 'Medium' | 'Hard'> = {
+    'EASY': 'Easy',
+    'MEDIUM': 'Medium', 
+    'HARD': 'Hard'
+  };
+
+  // Extract tags from exerciseCategories
+  let tags: string[] = [];
+  if (backendExercise?.exerciseCategories && Array.isArray(backendExercise.exerciseCategories)) {
+    tags = backendExercise.exerciseCategories.map((category: any) => {
+      // ExerciseCategory might have different structures, try common field names
+      return category?.name || category?.categoryName || category?.title || category?.category || String(category);
+    }).filter(Boolean); // Remove null/undefined values
+  }
+
+  const mapped: ExerciseListItem = {
+    id: String(backendExercise?.id || Math.random()),
+    slug: backendExercise?.slung || backendExercise?.slug || `exercise-${backendExercise?.id || Math.random()}`,
+    title: backendExercise?.name || backendExercise?.title || "Untitled Exercise",
+    difficulty: difficultyMap[backendExercise?.level as string] || 'Easy',
+    description: backendExercise?.description || '',
+    exerciseType: backendExercise?.exerciseType,
+    isPublic: backendExercise?.isPublic !== false, // default to true
+    level: backendExercise?.level,
+    name: backendExercise?.name,
+    language: backendExercise?.language || 'Unknown', // Extract language directly
+    // Default values for FE-specific fields
+    points: 100,
+    acceptance: Math.random() * 100,
+    tags: tags, // Use extracted tags from exerciseCategories
+    status: (backendExercise?.status === "COMPLETED" ? "Solved" : "Unseen") as "Solved" | "Attempted" | "Unseen"
+  };
+  return mapped;
+}
+
 export async function getExercise(slug: string) {
   // Nếu NEXT_PUBLIC_API_URL đã kết thúc /api -> backend route thực tế có thể chỉ /exercises/:slug
   // fetcher đã có fallback bỏ /api nếu 404.
-  return api<ExerciseDTO>(`/exercises/${slug}`);
+  const response = await api<any>(`/exercises/${slug}`);
+  return response.data as ExerciseDTO;
 }
 
 export async function getExercisesList() {
-  return api<ExerciseListItem[]>(`/exercises`);
+  
+  try {
+    const response = await api<{
+      content: any[];
+      totalElements: number;
+      totalPages: number;
+      page: number;
+      size: number;
+    }>(`/exercises`);
+
+    
+    // Handle different response structures
+    let exercises: any[] = [];
+    
+    // The fetcher returns the parsed JSON directly, not wrapped in .data
+    // So response IS the actual data object
+    const actualData = response;
+    
+  
+    
+    if (actualData) {
+      // Case 1: actualData.content (paginated) - Most likely case
+      if ((actualData as any).content && Array.isArray((actualData as any).content)) {
+        exercises = (actualData as any).content;
+      }
+      // Case 2: actualData.data.content (nested)
+      else if (actualData.data && (actualData.data as any).content && Array.isArray((actualData.data as any).content)) {
+        exercises = (actualData.data as any).content;
+      }
+      // Case 3: actualData.data is directly an array
+      else if (actualData.data && Array.isArray(actualData.data)) {
+        exercises = actualData.data;
+      }
+      // Case 4: actualData is directly an array
+      else if (Array.isArray(actualData)) {
+        exercises = actualData;
+      }
+    }
+    
+    // Map backend exercises to frontend format
+    const mappedExercises = exercises.map((exercise, index) => {
+      return mapBackendExerciseToListItem(exercise);
+    });
+    
+    
+    return mappedExercises;
+  } catch (error) {
+    console.error("[getExercisesList] API call failed:", error);
+    throw error;
+  }
 }
 
 export async function getTopics() {

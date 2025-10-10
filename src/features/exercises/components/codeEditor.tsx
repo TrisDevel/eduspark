@@ -23,6 +23,7 @@ const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
 type Props = {
   exerciseId: string;
   language: MonacoLang; // "javascript" | "python" | ...
+  setupCode?: string; // Setup code from backend
   onChange?: (code: string) => void; // callback cho parent (nếu cần)
   height?: string | number; // mặc định 460
 };
@@ -30,6 +31,7 @@ type Props = {
 export default function CodeEditor({
   exerciseId,
   language,
+  setupCode,
   onChange,
   height = 460,
 }: Props) {
@@ -40,8 +42,34 @@ export default function CodeEditor({
   // Load code khi mount hoặc đổi language
   useEffect(() => {
     latestLang.current = language;
-    setValue(loadCode(exerciseId, language));
-  }, [exerciseId, language]);
+    
+    
+    // Check if there's saved code first, then fallback to setup code, then default
+    const savedCode = typeof window !== "undefined" ? localStorage.getItem(`eduspark:code:${exerciseId}:${language}`) : null;
+    
+    
+    if (savedCode) {
+      // User has previously written code for this exercise
+      setValue(savedCode);
+    } else if (setupCode && setupCode.trim() && isValidCode(setupCode)) {
+      // Use setup code from backend if it looks like actual code
+      setValue(setupCode);
+    } else {
+      // Fallback to default template
+      const defaultCode = loadCode(exerciseId, language);
+      setValue(defaultCode);
+    }
+  }, [exerciseId, language, setupCode]);
+
+  // Helper function to check if setup code looks like actual code
+  const isValidCode = (code: string): boolean => {
+    const codeIndicators = [
+      'import', 'public', 'class', 'function', 'def', 'var', 'let', 'const',
+      '{', '}', '(', ')', ';', '//', '/*', '#include', 'using namespace'
+    ];
+    
+    return codeIndicators.some(indicator => code.includes(indicator));
+  };
 
   const handleChange = (val?: string) => {
     const code = val ?? "";

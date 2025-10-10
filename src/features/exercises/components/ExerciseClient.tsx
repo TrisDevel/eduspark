@@ -12,17 +12,34 @@ import Link from "next/link";
 
 export default function ExerciseClient({ slug }: { slug: string }) {
   const { data: ex, loading, error } = useExercise(slug);
-  const [lang, setLang] = useState<MonacoLang>("javascript");
   const [code, setCode] = useState("");
-  const { run, submit, running, lastRun } = useRunCode(ex?.id || "");
+  const { precheck, practice, running, lastRun, error: runError } = useRunCode(ex?.id || "");
+
+  // Map backend language to Monaco language
+  const getMonacoLanguage = (backendLang?: string): MonacoLang => {
+    if (!backendLang) return "java"; // default
+    
+    const langMap: Record<string, MonacoLang> = {
+      'Java': 'java',
+      'JavaScript': 'javascript', 
+      'TypeScript': 'typescript',
+      'Python': 'python',
+      'C++': 'cpp',
+      'CPP': 'cpp',
+      // Add more mappings as needed
+    };
+    
+    return langMap[backendLang] || "java";
+  };
+
+  // Get language from exercise data, not user selection
+  const lang = getMonacoLanguage(ex?.language);
 
   useEffect(() => {
-    console.debug("[ExerciseClient] slug =", slug, "ex?.id =", ex?.id);
-  }, [slug, ex?.id]);
+
+  }, [slug, ex?.id, ex?.language, lang]);
 
   useEffect(() => {
-    console.debug("[ExerciseClient] slug =", slug);
-    console.debug("[ExerciseClient] ex =", ex);
     if (error) {
       console.error("[ExerciseClient] load error =", error);
     }
@@ -60,11 +77,12 @@ export default function ExerciseClient({ slug }: { slug: string }) {
       return;
     }
     if (!code.trim()) {
-      toast.warning?.("Code trống");
+      toast.error("Vui lòng nhập code trước khi chạy");
+      return;
     }
     try {
-      console.debug("[handleRun] exerciseId=", ex.id, "lang=", lang);
-      await run(code, lang);
+      console.debug("[handleRun] exerciseId=", ex.id, "running precheck");
+      await precheck(code);
       toast.success("Đã chạy xong");
     } catch (e: any) {
       console.error("[handleRun] error:", e);
@@ -78,11 +96,13 @@ export default function ExerciseClient({ slug }: { slug: string }) {
       return;
     }
     try {
-      console.debug("[handleSubmit] exerciseId=", ex.id, "lang=", lang);
-      const res = await submit(code, lang);
-      toast[res.data.verdict === "ACCEPTED" ? "success" : "error"](
-        res.data.verdict === "ACCEPTED" ? "Accepted 🎉" : "Rejected"
-      );
+      console.debug("[handleSubmit] exerciseId=", ex.id, "running practice mode");
+      const res = await practice(code);
+      if (res.data.score >= 100) {
+        toast.success("Accepted 🎉");
+      } else {
+        toast.error(`Score: ${res.data.score}% - Cần cải thiện`);
+      }
     } catch (e: any) {
       console.error("[handleSubmit] error:", e);
       toast.error(e.message || "Submit failed");
@@ -90,158 +110,301 @@ export default function ExerciseClient({ slug }: { slug: string }) {
   };
 
   return (
-    <main className="min-h-screen bg-gray-900 text-white">
-      <div className="space-y-6 p-6">
-        <div className="flex items-center justify-between animate-fade-in-up">
-          <Breadcrumb
-            items={[
-              { label: "Home", href: ROUTES.home },
-              { label: "Luyện tập", href: ROUTES.play.exercises },
-              { label: ex.title },
-            ]}
-          />
-          <Link
-            href={ROUTES.play.exercises}
-            className="text-gray-300 hover:text-white transition-colors duration-300"
-          >
-            Đóng
-          </Link>
-        </div>
-        <div className="flex items-center justify-between animate-fade-in-up animation-delay-200">
-          <div>
-            <h1 className="text-3xl font-bold text-white">{ex.title}</h1>
-            <div className="mt-2 flex items-center gap-3">
-              <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700 transition-all duration-300 hover:scale-105">
-                {ex.difficulty}
-              </span>
-              <span className="text-sm text-gray-300 transition-colors duration-300 hover:text-white">
-                ⭐ {ex.points} Points
-              </span>
-              <span className="text-sm text-gray-300 transition-colors duration-300 hover:text-white">
-                Character Limit: {ex.characterLimit}
-              </span>
+    <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
+      {/* Header with enhanced styling */}
+      <div className="border-b border-gray-700/50 bg-gray-800/50 backdrop-blur-sm sticky top-0 z-10">
+        <div className="px-6 py-4">
+          <div className="flex items-center justify-between">
+            <Breadcrumb
+              items={[
+                { label: "Home", href: ROUTES.home },
+                { label: "Luyện tập", href: ROUTES.play.exercises },
+                { label: ex.title },
+              ]}
+            />
+            <div className="flex items-center gap-3">
+              {/* Progress indicator */}
+              <div className="flex items-center gap-2 text-sm text-gray-400">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                <span>Đang làm bài</span>
+              </div>
+              <Link
+                href={ROUTES.play.exercises}
+                className="flex items-center gap-2 px-3 py-1.5 text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-lg transition-all duration-300"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Đóng
+              </Link>
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 animate-fade-in-up animation-delay-400">
-          <div className="space-y-6">
-            <div className="rounded-xl border border-gray-700 bg-gray-800 p-5 transition-all duration-300 hover:border-gray-600 hover:shadow-lg hover:shadow-gray-900/20">
-              <h2 className="mb-4 text-xl font-semibold text-white">
-                Exercise
-              </h2>
-              <p className="text-sm text-gray-300 mb-4">{ex.statement}</p>
-              <div className="text-sm text-gray-300">
-                <div className="font-semibold mb-2">Your function should:</div>
-                <ul className="list-disc pl-5 space-y-1">
-                  <li className="transition-colors duration-300 hover:text-white">
-                    Accept an array of integers as input
-                  </li>
-                  <li className="transition-colors duration-300 hover:text-white">
-                    Return the sum of all elements
-                  </li>
-                  <li className="transition-colors duration-300 hover:text-white">
-                    Return 0 for empty arrays
-                  </li>
-                  <li className="transition-colors duration-300 hover:text-white">
-                    Handle negative numbers correctly
-                  </li>
-                </ul>
-              </div>
-              <div className="mt-4 text-sm text-gray-300">
-                <div className="font-semibold mb-2">Time Complexity:</div>
-                <p className="transition-colors duration-300 hover:text-white">
-                  The time complexity should be O(n) where n is the length of
-                  the array.
-                </p>
-              </div>
-
-              {/* Example Code */}
-              <div className="mt-6">
-                <div className="text-sm text-gray-400 mb-2">JavaScript</div>
-                <div className="rounded-lg bg-gray-900 p-4 text-sm transition-all duration-300 hover:bg-gray-800">
-                  <pre className="text-gray-300">
-                    {`function sumArray(arr) {
-  if (arr.length === 0) {
-    return 0;
-  }
-  let sum = 0;
-  for (let i = 0; i < arr.length; i++) {
-    sum += arr[i];
-  }
-  return sum;
-}`}
-                  </pre>
+      <div className="space-y-6 p-6">
+        {/* Enhanced title section */}
+        <div className="animate-fade-in-up">
+          <div className="bg-gradient-to-r from-gray-800/80 to-gray-700/80 backdrop-blur-sm rounded-2xl p-4 border border-gray-600/30">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-3">
+                  {ex.title}
+                </h1>
+                <div className="flex items-center gap-4 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-3 h-3 rounded-full ${
+                      ex.difficulty === 'Easy' ? 'bg-green-500' : 
+                      ex.difficulty === 'Medium' ? 'bg-yellow-500' : 'bg-red-500'
+                    }`}></div>
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      ex.difficulty === 'Easy' ? 'bg-green-100 text-green-800' : 
+                      ex.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
+                    } transition-all duration-300 hover:scale-105`}>
+                      {ex.difficulty}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1 text-amber-400">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                    <span className="text-sm font-medium">{ex.points} điểm</span>
+                  </div>
+                  {ex.characterLimit && (
+                    <div className="flex items-center gap-1 text-blue-400">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <span className="text-sm">Giới hạn: {ex.characterLimit} ký tự</span>
+                    </div>
+                  )}
                 </div>
               </div>
+              
+            </div>
+          </div>
+        </div>
+
+        {/* Enhanced layout with better spacing and design */}
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 animate-fade-in-up animation-delay-400">
+          {/* Problem description panel */}
+          <div className="space-y-6">
+            <div className="bg-gradient-to-br from-gray-800/90 to-gray-700/90 backdrop-blur-sm rounded-2xl border border-gray-600/30 overflow-hidden">
+              {/* Header with icon */}
+              <div className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-gray-700/50 to-gray-600/50 border-b border-gray-600/30">
+                <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <h2 className="text-xl font-semibold text-white">Đề bài</h2>
+              </div>
+              
+              {/* Content */}
+              <div className="p-6">
+                <div className="prose prose-invert prose-sm max-w-none">
+                  <div className="text-gray-300 leading-relaxed whitespace-pre-line">
+                    {ex.statement}
+                  </div>
+                </div>
+                
+                {/* Setup instructions with enhanced styling */}
+                {ex.setup && (
+                  <div className="mt-8">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-6 h-6 bg-amber-500/20 rounded-lg flex items-center justify-center">
+                        <svg className="w-3 h-3 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-sm font-semibold text-amber-400">Yêu cầu chi tiết</h3>
+                    </div>
+                    <div className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 rounded-xl p-4 border border-gray-600/20">
+                      <div className="text-gray-300 text-sm whitespace-pre-line leading-relaxed">
+                        {ex.setup}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Example section with real test case */}
+                {ex.testCases && ex.testCases.length > 0 && (
+                  <div className="mt-8">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-6 h-6 bg-green-500/20 rounded-lg flex items-center justify-center">
+                        <svg className="w-3 h-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                      <h3 className="text-sm font-semibold text-green-400">Ví dụ</h3>
+                      {ex.testCases.length > 1 && (
+                        <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full">
+                          {ex.testCases.length} test cases
+                        </span>
+                      )}
+                    </div>
+                    <div className="space-y-3">
+                      {/* First test case */}
+                      <div className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 rounded-xl p-4 border border-gray-600/20">
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-4 h-4 bg-green-500/20 rounded flex items-center justify-center">
+                            <span className="text-xs text-green-400 font-bold">1</span>
+                          </div>
+                          <span className="text-xs text-gray-400">Test Case #{ex.testCases[0].id}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <div className="text-gray-400 mb-2">Input:</div>
+                            <code className="text-blue-300 bg-gray-800/50 px-2 py-1 rounded block break-all">
+                              {Array.isArray(ex.testCases[0].input) 
+                                ? JSON.stringify(ex.testCases[0].input)
+                                : String(ex.testCases[0].input)
+                              }
+                            </code>
+                          </div>
+                          <div>
+                            <div className="text-gray-400 mb-2">Expected Output:</div>
+                            <code className="text-green-300 bg-gray-800/50 px-2 py-1 rounded block break-all">
+                              {String(ex.testCases[0].expectedOutput)}
+                            </code>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Show second test case if available */}
+                      {ex.testCases.length > 1 && (
+                        <div className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 rounded-xl p-4 border border-gray-600/20">
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="w-4 h-4 bg-blue-500/20 rounded flex items-center justify-center">
+                              <span className="text-xs text-blue-400 font-bold">2</span>
+                            </div>
+                            <span className="text-xs text-gray-400">Test Case #{ex.testCases[1].id}</span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <div className="text-gray-400 mb-2">Input:</div>
+                              <code className="text-blue-300 bg-gray-800/50 px-2 py-1 rounded block break-all">
+                                {Array.isArray(ex.testCases[1].input) 
+                                  ? JSON.stringify(ex.testCases[1].input)
+                                  : String(ex.testCases[1].input)
+                                }
+                              </code>
+                            </div>
+                            <div>
+                              <div className="text-gray-400 mb-2">Expected Output:</div>
+                              <code className="text-green-300 bg-gray-800/50 px-2 py-1 rounded block break-all">
+                                {String(ex.testCases[1].expectedOutput)}
+                              </code>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Show "and more" indicator if there are more test cases */}
+                      {ex.testCases.length > 2 && (
+                        <div className="text-center py-2">
+                          <span className="text-xs text-gray-400 bg-gray-700/50 px-3 py-1 rounded-full">
+                            +{ex.testCases.length - 2} test cases khác sẽ được kiểm tra khi bạn submit
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
+          {/* Enhanced code editor panel */}
           <div className="space-y-6">
-            <div>
-              <div className="mb-3 flex items-center gap-3 animate-fade-in-up animation-delay-600">
-                <label className="text-sm text-gray-300">Language</label>
-                <select
-                  className="rounded-md border border-gray-600 bg-gray-800 px-2 py-1 text-sm text-white transition-all duration-300 hover:border-gray-500 focus:border-emerald-500 focus:outline-none"
-                  value={lang}
-                  onChange={(e) => setLang(e.target.value as MonacoLang)}
-                >
-                  <option value="javascript">JavaScript</option>
-                  <option value="typescript">TypeScript</option>
-                  <option value="python">Python</option>
-                  <option value="cpp">C++</option>
-                  <option value="java">Java</option>
-                </select>
+            {/* Toolbar with better design */}
+            <div className="bg-gradient-to-br from-gray-800/90 to-gray-700/90 backdrop-blur-sm rounded-2xl border border-gray-600/30 overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-gray-700/50 to-gray-600/50 border-b border-gray-600/30">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                      <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                      </svg>
+                    </div>
+                    <span className="text-sm font-medium text-gray-300">Ngôn ngữ</span>
+                  </div>
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-600/50 rounded-lg border border-gray-500/30">
+                    <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                    <span className="text-sm text-purple-300 font-medium">{ex?.language || 'Java'}</span>
+                    <span className="text-xs text-gray-400">(Tự động)</span>
+                  </div>
+                </div>
 
-                <div className="ml-auto flex items-center gap-2">
+                <div className="flex items-center gap-3">
+                  {/* Run button with enhanced styling */}
                   <button
                     onClick={handleRun}
                     disabled={running || !ex.id}
-                    className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-emerald-500/25"
+                    className="flex items-center gap-2 px-4 py-1 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-lg font-medium disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-emerald-500/25"
                   >
-                    {running ? "Running..." : "Run"}
+                    {running ? (
+                      <>
+                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Đang chạy...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Chạy</span>
+                      </>
+                    )}
                   </button>
+
+                  {/* Submit button with enhanced styling */}
                   <button
                     onClick={handleSubmit}
-                    disabled={!lastRun}
-                    className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25"
+                    disabled={!lastRun || running}
+                    className="flex items-center gap-2 px-4 py-1 bg-gradient-to-r from-orange-400 to-orange-700 hover:from-orange-500 hover:to-orange-600 text-white rounded-lg font-medium disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-orange-500/25"
                   >
-                    Submit
+                    <span>Nộp bài</span>
                   </button>
                 </div>
               </div>
 
-              {/* Step Navigation */}
-              <div className="mb-3 flex items-center gap-2 animate-fade-in-up animation-delay-800">
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((step, index) => (
-                  <div
-                    key={step}
-                    className={`px-3 py-1 text-sm rounded transition-all duration-300 transform hover:scale-105 ${
-                      step === 1
-                        ? "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/25"
-                        : "bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white"
-                    }`}
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
-                    Step {step}
-                  </div>
-                ))}
-              </div>
-
-              <div className="animate-fade-in-up animation-delay-1000">
-                <CodeEditor
-                  exerciseId={ex.id}
-                  language={lang}
-                  onChange={setCode}
-                  height={460}
-                />
+              {/* Code editor with enhanced container */}
+              <div className="p-6">
+                <div className="rounded-xl overflow-hidden border border-gray-600/30 bg-gray-900/50">
+                  <CodeEditor
+                    exerciseId={ex.id}
+                    language={lang}
+                    setupCode={ex.setup}
+                    onChange={setCode}
+                    height={460}
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="animate-fade-in-up animation-delay-1200">
+            {/* Enhanced results panel */}
+            <div className="animate-fade-in-up animation-delay-1000">
               <RunPanel data={lastRun} />
             </div>
           </div>
+        </div>
+
+        {/* Additional floating elements for professional look */}
+        <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-20">
+          {/* Help button */}
+          <button className="w-12 h-12 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-full flex items-center justify-center text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </button>
+
+          {/* Theme toggle */}
+          <button className="w-12 h-12 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 rounded-full flex items-center justify-center text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+          </button>
         </div>
       </div>
     </main>

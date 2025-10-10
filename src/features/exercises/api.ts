@@ -1,5 +1,5 @@
 import { api } from "@/lib/fetcher";
-import type { ExerciseDTO, RunResponse, ExerciseListItem } from "@/features/exercises/type";
+import type { ExerciseDTO, RunResponse, ExerciseListItem, ExecutionResponse } from "@/features/exercises/type";
 import type { Topic } from "@/mocks/fixtures/exercises";
 
 // Helper: chuẩn hoá path để tránh // hoặc /api/api
@@ -59,10 +59,57 @@ function mapBackendExerciseToListItem(backendExercise: any): ExerciseListItem {
 }
 
 export async function getExercise(slug: string) {
-  // Nếu NEXT_PUBLIC_API_URL đã kết thúc /api -> backend route thực tế có thể chỉ /exercises/:slug
-  // fetcher đã có fallback bỏ /api nếu 404.
-  const response = await api<any>(`/exercises/${slug}`);
-  return response.data as ExerciseDTO;
+  console.log("[getExercise] Starting API call for slug:", slug);
+  
+  try {
+    const response = await api<any>(`/exercises/${slug}`);
+    console.log("[getExercise] API response received:", response);
+    
+    // Handle response structure - similar to getExercisesList
+    let exerciseData = response.data || response;
+    console.log("[getExercise] Exercise data:", exerciseData);
+    
+    if (!exerciseData) {
+      throw new Error("No exercise data received");
+    }
+
+    // Map Backend Exercise to ExerciseDTO
+    const difficultyMap: Record<string, 'Easy' | 'Medium' | 'Hard'> = {
+      'EASY': 'Easy',
+      'MEDIUM': 'Medium', 
+      'HARD': 'Hard'
+    };
+
+    // Extract test cases
+    let testCases: { id: string; input: number[]; expectedOutput: number }[] = [];
+    if (exerciseData.testCasesRequest && Array.isArray(exerciseData.testCasesRequest)) {
+      testCases = exerciseData.testCasesRequest.map((testCase: any, index: number) => ({
+        id: String(testCase.id || index),
+        input: testCase.input || [],
+        expectedOutput: testCase.expectedOutput || 0
+      }));
+    }
+
+    const mapped: ExerciseDTO = {
+      id: String(exerciseData.id || ''),
+      slug: exerciseData.slung || exerciseData.slug || slug,
+      title: exerciseData.name || exerciseData.title || "Untitled Exercise",
+      categoryPath: ["Luyện tập"], // Default breadcrumb
+      difficulty: difficultyMap[exerciseData.level as string] || 'Easy',
+      points: exerciseData.points || 100,
+      characterLimit: exerciseData.characterLimit || 2000,
+      statement: exerciseData.description || "No description available",
+      testCases: testCases,
+      language: exerciseData.language || 'Java',
+      setup: exerciseData.setup || "No setup available"
+    };
+    
+    console.log("[getExercise] Final mapped exercise:", mapped);
+    return mapped;
+  } catch (error) {
+    console.error("[getExercise] API call failed:", error);
+    throw error;
+  }
 }
 
 export async function getExercisesList() {
@@ -126,6 +173,37 @@ export async function getAdditionalTopics() {
   return api<string[]>(`/topics/additional`);
 }
 
+export async function runCodePrecheck(args: { exerciseId: string; code: string; customInput?: string }) {
+  return api<ExecutionResponse>(`/judgement/precheck/${args.exerciseId}`, {
+    method: "POST",
+    body: JSON.stringify({
+      code: args.code,
+      customInput: args.customInput || "no custom input" // Backend requires non-blank customInput
+    }),
+  } as any);
+}
+
+export async function runCodePractice(args: { exerciseId: string; code: string; customInput?: string }) {
+  return api<ExecutionResponse>(`/judgement/practice/${args.exerciseId}`, {
+    method: "POST",
+    body: JSON.stringify({
+      code: args.code,
+      customInput: args.customInput || "no custom input"
+    }),
+  } as any);
+}
+
+export async function runCustomCode(args: { exerciseId: string; code: string; customInput: string }) {
+  return api<string>(`/judgement/${args.exerciseId}/run-custom-code`, {
+    method: "POST",
+    body: JSON.stringify({
+      code: args.code,
+      customInput: args.customInput
+    }),
+  } as any);
+}
+
+// Keep old functions for backward compatibility
 export async function runCode(args: { exerciseId: string; language: string; code: string }) {
   return api<RunResponse>("/run", {
     method: "POST",

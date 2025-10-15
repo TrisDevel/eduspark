@@ -48,9 +48,8 @@ export async function api<T = unknown>(path: string, init: RequestInit = {}): Pr
   }
 
   // Lấy token trong localStorage (chỉ khi chạy client)
-  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
   if (token) headers.set("Authorization", `Bearer ${token}`); // gắn token vào header Authorization
-
   // Chọn base URL theo mode mock/thật
   const useMock = process.env.NEXT_PUBLIC_USE_MOCK === "1";
   const base = useMock ? "/api" : (process.env.NEXT_PUBLIC_API_URL || "");

@@ -10,5 +10,7 @@ export interface Course {
     discount: number;
     published: boolean; 
     image: string;
+    quizzes?: any[]; // Add quiz type when structure is known
+    discountedPrice?: number;
 }
 

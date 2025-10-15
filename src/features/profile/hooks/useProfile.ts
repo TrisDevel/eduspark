@@ -13,7 +13,7 @@ export function useProfile() {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        const profile = await getProfile(user?.id || "");
+        const profile = await getProfile();
         setData(profile);
       } catch (err) {
         setError(err as Error);

@@ -27,7 +27,7 @@ export default function Breadcrumb({ items, className }: BreadcrumbProps) {
                   {item.label}
                 </Link>
               ) : (
-                <span className="text-gray-300 font-medium">{item.label}</span>
+                <span className="text-gray-400 font-medium">{item.label}</span>
               )}
               {!isLast && (
                 <svg

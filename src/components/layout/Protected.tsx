@@ -25,6 +25,7 @@ export default function Protected({ children }: { children: React.ReactNode }) {
     
 
     if (!user) {
+      console.log("user", user);
       const message = encodeURIComponent("Bạn phải đăng nhập trước");
       // ➜ Nếu KHÔNG có user (chưa đăng nhập) thì chuẩn bị redirect sang /login
       //   và kèm query "from" để login xong quay lại đúng trang đang dở.

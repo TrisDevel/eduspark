@@ -1,23 +1,56 @@
-export interface UserProfile {
-  id: string;
-  userId: string;
-  username: string;
-  email: string;
-  fullName: string;
-  avatar?: string;
-  bio?: string;
-  location?: string;
-  phone?: string;
-  skills?: string[];
-  level?: number;
-  maxLevel?: number;
-  role: string;
-  joinedDate: string;
-  stats: ProfileStats;
-  badges: Badge[];
-  recentActivity: Activity[];
+export interface Role {
+  id: number;
+  name: string;
 }
 
+export interface Authority {
+  authority: string;
+}
+
+export interface Quiz {
+  // Add quiz fields as needed when quiz structure is known
+  id?: number;
+  title?: string;
+}
+
+export interface PurchasedCourse {
+  id: number;
+  name: string;
+  code: string;
+  description: string;
+  published: boolean;
+  image: string;
+  price: number;
+  discount: number;
+  durationInWeeks: number;
+  language: string;
+  level: string;
+  quizzes: Quiz[];
+  discountedPrice: number;
+}
+
+export interface UserProfile {
+  id: number;
+  username: string;
+  password: string;
+  fullName: string;
+  email: string;
+  participatedQuizzes: Quiz[];
+  createdCourses: PurchasedCourse[];
+  taughtCourses: PurchasedCourse[];
+  purchasedCourses: PurchasedCourse[];
+  attemptedCourses: PurchasedCourse[];
+  roles: Role[];
+  testSessions: any[]; // Type as needed when structure is known
+  enabled: boolean;
+  authorities: Authority[];
+  accountNonLocked: boolean;
+  credentialsNonExpired: boolean;
+  accountNonExpired: boolean;
+}
+
+// Legacy interfaces - kept for backward compatibility with existing components
+// These may need to be computed from UserProfile data or fetched separately
 export interface ProfileStats {
   totalSolved: number;
   easySolved: number;
@@ -49,6 +82,7 @@ export interface Activity {
   exerciseTitle?: string;
   difficulty?: "Easy" | "Medium" | "Hard";
 }
+
 export interface CourseProgress {
   id: string;
   title: string;

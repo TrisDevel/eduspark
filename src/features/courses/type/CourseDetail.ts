@@ -13,21 +13,22 @@ export interface Tag {
 }
 
 export interface Section {
-    sectionId : string;
-    sectionName : string;
-    orderNumer: number;
-    courseMaterials : CourseMaterial[];
+    sectionId: number;
+    sectionName: string;
+    orderNumber: number;
+    videoUrl: string | null;
+    previewable: string | null;
+    courseMaterials: CourseMaterial[];
 }
 
 export interface CourseMaterial {
-    courseMaterialId : string;
+    courseMaterialId: string;
+    title: string;
+    materialUrl: string;
     materialType: string;
     materialName: string;
-    materialUrl: string;
     orderNum: number;
-    title: string;
-    expectDuration: number;
-    wordCount: number;
+    expectDuration: number; // in minutes
 }
 
 export interface CourseDetail {

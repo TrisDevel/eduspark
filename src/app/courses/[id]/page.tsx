@@ -283,7 +283,7 @@ export default function CourseDetailPage() {
                 </h3>
                 <div className="space-y-3">
                   {course.sections
-                    .sort((a, b) => a.orderNumer - b.orderNumer)
+                    .sort((a, b) => a.orderNumber - b.orderNumber)
                     .map((section) => (
                       <div
                         key={section.sectionId}
@@ -291,12 +291,12 @@ export default function CourseDetailPage() {
                       >
                         {/* Section Header */}
                         <button
-                          onClick={() => toggleSection(section.sectionId)}
+                          onClick={() => toggleSection(section.sectionId.toString())}
                           className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
                         >
                           <div className="flex items-center gap-3">
                             <span className="text-orange-500">
-                              {expandedSections.has(section.sectionId) ? (
+                              {expandedSections.has(section.sectionId.toString()) ? (
                                 <svg
                                   className="w-5 h-5"
                                   fill="none"
@@ -337,7 +337,7 @@ export default function CourseDetailPage() {
 
                         {/* Section Materials */}
                         <AnimatePresence initial={false}>
-                          {expandedSections.has(section.sectionId) &&
+                          {expandedSections.has(section.sectionId.toString()) &&
                             section.courseMaterials &&
                             section.courseMaterials.length > 0 && (
                               <motion.div
@@ -432,12 +432,7 @@ export default function CourseDetailPage() {
                                               </svg>
                                               {material.expectDuration} phút
                                             </span>
-                                            {material.wordCount > 0 && (
-                                              <span>
-                                                {material.wordCount.toLocaleString()}{" "}
-                                                từ
-                                              </span>
-                                            )}
+                                           
                                           </div>
                                         </div>
                                       </div>

@@ -29,7 +29,6 @@ export const ROUTES = {
     detail: (id: string) => `/classes/${id}`,
   },
   profile: {
-
     index: "/profile",
   },
   errors: {
